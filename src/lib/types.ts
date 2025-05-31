@@ -56,4 +56,5 @@ export interface SimulationResult {
   generationImpact: GenerationImpact
   controlEffectiveness: ControlEffectiveness
   recommendations: string[]
+  economicImpact: EconomicImpact
 }

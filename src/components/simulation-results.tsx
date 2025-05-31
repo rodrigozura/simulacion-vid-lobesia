@@ -294,7 +294,7 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
             <h3 className="text-lg font-semibold text-gray-700">Recomendaciones</h3>
             <div className="space-y-2">
               {recommendations.map((recommendation, index) => (
-                <Alert key={index} variant={index === 0 ? "default" : "outline"}>
+                <Alert key={index} variant={index === 0 ? "default" : "default"}>
                   <CheckCircle className="h-4 w-4" />
                   <AlertDescription>{recommendation}</AlertDescription>
                 </Alert>
