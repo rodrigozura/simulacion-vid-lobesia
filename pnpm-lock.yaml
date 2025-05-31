@@ -2,6 +2,7 @@ lockfileVersion: '9.0'
 
 settings:
   autoInstallPeers: true
+<<<<<<< HEAD
   excludeLinksFromLockfile: false
 
 importers:
@@ -3592,3 +3593,6 @@ snapshots:
   yaml@2.8.0: {}
 
   zod@3.24.1: {}
+=======
+  excludeLinksFromLockfile: false
+>>>>>>> 8bbc0a0 (first commit)
