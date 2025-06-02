@@ -2,19 +2,11 @@ export interface SimulationConfig {
   grapeVariety: string
   hectares: number
   initialInfestation: number
-  temperature: number
-  humidity: number
   controlMethods: {
-    pheromoneTraps: boolean
-    matingDisruption: boolean
+    pheromone_Traps: boolean
+    mating_Disruption: boolean
     insecticides: boolean
-    sterileInsectTechnique: boolean
-  }
-  controlIntensity: {
-    pheromoneTraps: number
-    matingDisruption: number
-    insecticides: number
-    sterileInsectTechnique: number
+    sterile_Insect_Technique: boolean
   }
 }
 

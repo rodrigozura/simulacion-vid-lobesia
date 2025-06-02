@@ -5,6 +5,7 @@ const usePseudorandomNumber = () => {
     const seed = Math.floor(Math.random() * 100000) + 1; // Semilla
     const multiplier = Math.floor(Math.random() * 100000) + 1; // Multiplicador
     const modulus = Math.floor(Math.random() * 100000) + 1; // Módulo
+   
     return { seed, multiplier, modulus };
   };
 
@@ -20,7 +21,7 @@ const usePseudorandomNumber = () => {
     }
     const u = nextValue / randomParameters.modulus;
     currentValueRef.current = nextValue; // Actualizamos la referencia directamente
-    return u;
+    return Math.random();
   }, [randomParameters]);
 
   useEffect(() => {

@@ -6,6 +6,7 @@ const useNormalDistribution = () => {
   const getNextRandomNumber = usePseudorandomNumber();
 
   const generateNormal = (media: number, desvio: number) => {
+    // console.log("Media:",media,"Desvio:", desvio)
     let sum = 0
     for (let i = 1; i < 12; i++) {
       let u = getNextRandomNumber();

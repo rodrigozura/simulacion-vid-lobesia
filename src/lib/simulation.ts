@@ -1,6 +1,21 @@
 import type { SimulationConfig, SimulationResult } from "./types"
+import { MONTHS, DEGREE_DAYS_ACCUMULATED_PER_GENERATION, GRAPE_VARIETY } from "../constants/constants";
+import useNormalDistribution from "../hooks/useNormalDitribution";
 
 export function runSimulation(config: SimulationConfig): SimulationResult {
+
+  //Calculate DegreeDaysAcumulation per month
+  const typeOfVariety = GRAPE_VARIETY[config.grapeVariety.toUpperCase() as keyof typeof GRAPE_VARIETY]
+  console.log(typeOfVariety.MONTHS_OF_GROWTH)
+  const degreeDaysAcumulation = typeOfVariety.MONTHS_OF_GROWTH.map((item) => {
+    console.log(item)
+    console.log(calculateDegreeDaysAcumulationPerMonth(item.toUpperCase() as keyof typeof MONTHS))
+
+    return null
+  })
+
+
+
   // Factores base de impacto según variedad
   const baseFactors = {
     malbec: {
@@ -42,13 +57,11 @@ export function runSimulation(config: SimulationConfig): SimulationResult {
   const infestationFactor = config.initialInfestation / 100
 
   // Ajustar por factores climáticos
-  const temperatureFactor = calculateTemperatureFactor(config.temperature)
-  const humidityFactor = calculateHumidityFactor(config.humidity)
-  const climateFactor = (temperatureFactor + humidityFactor) / 2
+  const climateFactor = 1 // o el valor que consideres adecuado
 
   // Ajustar por edad de la vid
-  const ageFactorYield = calculateAgeFactorYield(config.vineAge)
-  const ageFactorQuality = calculateAgeFactorQuality(config.vineAge)
+  const ageFactorYield = calculateAgeFactorYield(10)
+  const ageFactorQuality = calculateAgeFactorQuality(10)
 
   // Calcular efectividad total de control
   let totalControlEffectiveness = 0
@@ -64,14 +77,13 @@ export function runSimulation(config: SimulationConfig): SimulationResult {
   Object.entries(config.controlMethods).forEach(([method, isActive]) => {
     if (isActive) {
       const methodKey = method as keyof typeof controlEffectiveness
-      const intensity = config.controlIntensity[methodKey] / 100
-      const effectiveness = controlEffectiveness[methodKey] * intensity
+      const effectiveness = controlEffectiveness[methodKey]
 
       // Aplicar efectividad con rendimientos decrecientes para métodos combinados
       totalControlEffectiveness = totalControlEffectiveness + effectiveness * (1 - totalControlEffectiveness * 0.3)
 
-      // Calcular costo ajustado por intensidad
-      const cost = controlCosts[methodKey] * (0.7 + intensity * 0.3)
+      // Calcular costo base
+      const cost = controlCosts[methodKey]
       totalControlCost += cost
 
       // Guardar efectividad individual para mostrar en resultados
@@ -140,32 +152,20 @@ export function runSimulation(config: SimulationConfig): SimulationResult {
       sterileInsectTechnique: Math.round(appliedControlEffectiveness.sterileInsectTechnique * 10) / 10,
     },
     recommendations,
-  }
-}
-
-// Funciones auxiliares para cálculos
-
-function calculateTemperatureFactor(temperature: number): number {
-  // Temperatura óptima para Lobesia botrana: 25-28°C
-  if (temperature >= 25 && temperature <= 28) {
-    return 1.0 // Condiciones óptimas
-  } else if (temperature < 15 || temperature > 35) {
-    return 0.3 // Condiciones desfavorables
-  } else if (temperature < 20 || temperature > 30) {
-    return 0.6 // Condiciones subóptimas
-  } else {
-    return 0.8 // Condiciones buenas
-  }
-}
-
-function calculateHumidityFactor(humidity: number): number {
-  // Humedad óptima para Lobesia botrana: 40-70%
-  if (humidity >= 40 && humidity <= 70) {
-    return 1.0 // Condiciones óptimas
-  } else if (humidity < 30 || humidity > 80) {
-    return 0.5 // Condiciones desfavorables
-  } else {
-    return 0.8 // Condiciones subóptimas
+    economicImpact: {
+      lossWithoutControl,
+      lossWithControl,
+      controlCosts: totalControlCost,
+      netBenefit,
+      returnOnInvestment,
+      costPerHectare: totalControlCost, // O ajusta según tu lógica
+      methodCosts: {
+        pheromoneTraps: config.controlMethods.pheromoneTraps ? controlCosts.pheromoneTraps : 0,
+        matingDisruption: config.controlMethods.matingDisruption ? controlCosts.matingDisruption : 0,
+        insecticides: config.controlMethods.insecticides ? controlCosts.insecticides : 0,
+        sterileInsectTechnique: config.controlMethods.sterileInsectTechnique ? controlCosts.sterileInsectTechnique : 0,
+      }
+    }
   }
 }
 
@@ -268,4 +268,25 @@ function generateRecommendations(
   }
 
   return recommendations
+}
+
+export function calculateDegreeDaysAcumulationPerMonth(monthKey: keyof typeof MONTHS): number {
+  
+  const month = MONTHS[monthKey];
+  console.log(month)
+  const days = month.DAYS;
+  const media = month.CLIMATE.AVERAGE_TEMPERATURE;
+  const desvio = month.CLIMATE.DESVIATION;
+  const umbral = DEGREE_DAYS_ACCUMULATED_PER_GENERATION.UMBRAL;
+
+  const generateNormal = useNormalDistribution()
+
+  let acumulado = 0;
+  for (let d = 0; d < days; d++) {
+    const tempDia = generateNormal(media, desvio);
+    if (tempDia > umbral) {
+      acumulado += (tempDia - umbral);
+    }
+  }
+  return acumulado;
 }
