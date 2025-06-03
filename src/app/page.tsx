@@ -31,8 +31,17 @@ export default function Home() {
 
   const [results, setResults] = useState<SimulationResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-
+  const [config, setConfig] = useState<SimulationConfig>({
+    grapeVariety: "malbec",
+    hectares: 1000,
+    initialInfestation: 1,
+    controlMethods: {
+      pheromone_Traps: true,
+      mating_Disruption: false,
+      insecticides: false,
+      sterile_Insect_Technique: false,
+    },
+  });
 
   function calculateDegreeDaysAcumulationPerMonth(
     monthKey: keyof typeof MONTHS
@@ -96,10 +105,11 @@ export default function Home() {
       totalEggsByGeneration *
       (1 - mortalityRateOfGeneration) *
       (1 - effectivityOfControlMethod);
-    return quantityLarvaByGeneration;
+    return { quantityLarvaByGeneration, effectivityOfControlMethod };
   }
 
   const handleSimulate = async (config: SimulationConfig) => {
+    setConfig(config);
     //Definimos algunas variables
     let qtyGenerationPests = 0;
     let initialInfestation = false;
@@ -117,9 +127,14 @@ export default function Home() {
     let damageBySecondGeneration = 0;
     let damageByThirdGeneration = 0;
     let damageByFourthGeneration = 0;
-    
+
+    let effectivityOfControlMethodFirstGeneration = 0;
+    let effectivityOfControlMethodSecondGeneration = 0;
+    let effectivityOfControlMethodThirdGeneration = 0;
+    let effectivityOfControlMethodFourthGeneration = 0;
+
     setIsLoading(true);
-    
+
     // Agregamos un pequeño retraso para asegurar que el estado de carga se muestre
     await new Promise(resolve => setTimeout(resolve, 100));
 
@@ -200,14 +215,14 @@ export default function Home() {
         qtyGenerationPests++
         degreeDaysCount = degreeDaysCount + necessaryDegreeDaysToStartGeneration
       }
-      console.log("Cantidad de generaciones: ", qtyGenerationPests)
 
-      const qtyAdultsFirtGeneration = Math.floor(simulateSurvivalByGeneration(
+      const { quantityLarvaByGeneration: qtyAdultsFirtGeneration, 
+              effectivityOfControlMethod } = simulateSurvivalByGeneration(
         totalEggsFirstGeneration,
         CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MIN,
-        CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MAX))
-      damageByFirstGeneration = Math.floor(simulateDamageGeneration(qtyAdultsFirtGeneration, typeOfVariety.DAMAGE_PER_GENERATION.FIRST_GENERATION))
-
+        CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MAX)
+      damageByFirstGeneration = Math.floor(simulateDamageGeneration(Math.floor(qtyAdultsFirtGeneration), typeOfVariety.DAMAGE_PER_GENERATION.FIRST_GENERATION))
+      effectivityOfControlMethodFirstGeneration = effectivityOfControlMethod
       // console.log("Cant. de adultos 1 Gen", qtyAdultsFirtGeneration)
       // console.log("Daño Primera Generacion: ", damageByFirstGeneration)
 
@@ -215,11 +230,13 @@ export default function Home() {
         //Calculate second generation
 
         totalEggsSecondGeneration = Math.floor(simulateEggsNextGeneration(damageByFirstGeneration))
-        const qtyAdultsSecondGeneration = Math.floor(simulateSurvivalByGeneration(
+        const { quantityLarvaByGeneration: qtyAdultsSecondGeneration, 
+                effectivityOfControlMethod: effectivityOfControlMethodSecond } = simulateSurvivalByGeneration(
           totalEggsSecondGeneration,
           CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MIN,
-          CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MAX))
-        damageBySecondGeneration = Math.floor(simulateDamageGeneration(qtyAdultsSecondGeneration, typeOfVariety.DAMAGE_PER_GENERATION.SECOND_GENERATION))
+          CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MAX)
+        damageBySecondGeneration = Math.floor(simulateDamageGeneration(Math.floor(qtyAdultsSecondGeneration), typeOfVariety.DAMAGE_PER_GENERATION.SECOND_GENERATION))
+        effectivityOfControlMethodSecondGeneration = effectivityOfControlMethodSecond
         // console.log("Cant. de adultos 2 Gen", qtyAdultsSecondGeneration)
         // console.log("Daño Segunda Generacion: ", damageBySecondGeneration)
       }
@@ -228,12 +245,13 @@ export default function Home() {
         //Calculate third generation
 
         totalEggsThirdGeneration = simulateEggsNextGeneration(damageByFirstGeneration)
-        const qtyAdultsThirdGeneration = simulateSurvivalByGeneration(
+        const { quantityLarvaByGeneration: qtyAdultsThirdGeneration, 
+                effectivityOfControlMethod: effectivityOfControlMethodThird } = simulateSurvivalByGeneration(
           totalEggsThirdGeneration,
           CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MIN,
           CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MAX)
-        damageByThirdGeneration = simulateDamageGeneration(qtyAdultsThirdGeneration, typeOfVariety.DAMAGE_PER_GENERATION.THIRD_GENERATION)
-
+        damageByThirdGeneration = simulateDamageGeneration(Math.floor(qtyAdultsThirdGeneration), typeOfVariety.DAMAGE_PER_GENERATION.THIRD_GENERATION)
+        effectivityOfControlMethodThirdGeneration = effectivityOfControlMethodThird
         // console.log("Cant. de adultos 3 Gen", totalEggsThirdGeneration)
         // console.log("Daño Tercer Generacion: ", damageByThirdGeneration)
 
@@ -241,17 +259,16 @@ export default function Home() {
       if (qtyGenerationPests > 3) {
         //Calculate fourth generation
         totalEggsFourthGeneration = simulateEggsNextGeneration(damageByFirstGeneration)
-        const qtyAdultsFourthGeneration = simulateSurvivalByGeneration(
+        const { quantityLarvaByGeneration: qtyAdultsFourthGeneration, 
+                effectivityOfControlMethod: effectivityOfControlMethodFourth } = simulateSurvivalByGeneration(
           totalEggsFourthGeneration,
           CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MIN,
           CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MAX)
-        damageByFourthGeneration = simulateDamageGeneration(qtyAdultsFourthGeneration, typeOfVariety.DAMAGE_PER_GENERATION.FOURTH_GENERATION)
+        damageByFourthGeneration = simulateDamageGeneration(Math.floor(qtyAdultsFourthGeneration), typeOfVariety.DAMAGE_PER_GENERATION.FOURTH_GENERATION)
+        effectivityOfControlMethodFourthGeneration = effectivityOfControlMethodFourth
         // console.log("Cant. de adultos 4 Gen", totalEggsFourthGeneration)
         // console.log("Daño Cuarto Generacion: ", damageByFourthGeneration)
-
       }
-
-
 
       totalDamage = damageByFirstGeneration + damageBySecondGeneration + damageByThirdGeneration + damageByFourthGeneration
     }
@@ -263,6 +280,7 @@ export default function Home() {
     const calculateImpactPercentage = (damage: number) => {
       return Number(((damage / grossYieldRatePerHectare) * 100).toFixed(2));
     };
+
 
     setResults({
       grapeVariety: config.grapeVariety || "malbec",
@@ -279,16 +297,17 @@ export default function Home() {
         generation4: calculateImpactPercentage(damageByFourthGeneration) || 0,
       },
       controlEffectiveness: {
-        pheromoneTraps: 0,
-        matingDisruption: 0,
-        insecticides: 0,
-        sterileInsectTechnique: 0,
+        generation1: Number(effectivityOfControlMethodFirstGeneration.toFixed(2)),
+        generation2: Number(effectivityOfControlMethodSecondGeneration.toFixed(2)),
+        generation3: Number(effectivityOfControlMethodThirdGeneration.toFixed(2)),
+        generation4: Number(effectivityOfControlMethodFourthGeneration.toFixed(2)),
       },
       recommendations: generateRecommendations(config, netYieldRate, 10, {
         generation1: damageByFirstGeneration,
         generation2: damageBySecondGeneration,
         generation3: damageByThirdGeneration,
       }),
+      controlMethodSelected: Object.entries(config.controlMethods).find(([_, value]) => value === true)?.[0] || "pheromone_Traps",
     });
 
     // Agregamos un pequeño retraso antes de quitar el estado de carga

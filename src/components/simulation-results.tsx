@@ -1,6 +1,6 @@
 "use client"
 
-import type { SimulationResult } from "@/lib/types"
+import type { SimulationResult, SimulationConfig } from "@/lib/types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -40,6 +40,7 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
     controlEffectiveness,
     recommendations,
     economicImpact,
+    controlMethodSelected,
   } = results
 
   const varietyName = grapeVariety === "malbec" ? "Malbec" : "Torrontés Riojano"
@@ -227,23 +228,29 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
                   <h3 className="text-lg font-semibold text-gray-700 mb-3 mt-4">
                     Efectividad de Control por Generación
                   </h3>
+                  <p className="text-sm text-gray-600 mb-4">
+                    Método de control aplicado: <span className="font-semibold text-green-700">
+                      {controlMethodSelected === 'pheromone_Traps' ? 'Trampas de Feromonas' :
+                       controlMethodSelected === 'mating_Disruption' ? 'Confusión Sexual' :
+                       controlMethodSelected === 'insecticides' ? 'Insecticidas' :
+                       'Técnica del Insecto Estéril'}
+                    </span>
+                  </p>
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart
                       data={[
-                        { name: "1ª Gen", trampas: 65, confusion: 75, insecticidas: 80, esteril: 60 },
-                        { name: "2ª Gen", trampas: 55, confusion: 70, insecticidas: 75, esteril: 65 },
-                        { name: "3ª Gen", trampas: 40, confusion: 60, insecticidas: 70, esteril: 70 },
+                        { name: "1ª Gen", efectividad: controlEffectiveness.generation1 * 100 },
+                        { name: "2ª Gen", efectividad: controlEffectiveness.generation2 * 100 },
+                        { name: "3ª Gen", efectividad: controlEffectiveness.generation3 * 100 },
+                        { name: "4ª Gen", efectividad: controlEffectiveness.generation4 * 100 },
                       ]}
                     >
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
                       <YAxis label={{ value: "Efectividad (%)", angle: -90, position: "insideLeft" }} />
-                      <Tooltip />
+                      <Tooltip formatter={(value: number) => [`${value.toFixed(1)}%`, "Efectividad"]} />
                       <Legend />
-                      <Line type="monotone" dataKey="trampas" stroke="#8884d8" name="Trampas de Feromonas" />
-                      <Line type="monotone" dataKey="confusion" stroke="#82ca9d" name="Confusión Sexual" />
-                      <Line type="monotone" dataKey="insecticidas" stroke="#ff7300" name="Insecticidas" />
-                      <Line type="monotone" dataKey="esteril" stroke="#0088fe" name="Técnica Insecto Estéril" />
+                      <Line type="monotone" dataKey="efectividad" stroke="#8884d8" name="Efectividad del Control" />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>

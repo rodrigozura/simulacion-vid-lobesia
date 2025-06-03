@@ -18,10 +18,10 @@ export interface GenerationImpact {
 }
 
 export interface ControlEffectiveness {
-  pheromoneTraps: number
-  matingDisruption: number
-  insecticides: number
-  sterileInsectTechnique: number
+  generation1: number
+  generation2: number
+  generation3: number
+  generation4: number
 }
 
 export interface EconomicImpact {
@@ -50,4 +50,5 @@ export interface SimulationResult {
   controlEffectiveness: ControlEffectiveness
   recommendations: string[]
   economicImpact?: EconomicImpact
+  controlMethodSelected: string
 }
