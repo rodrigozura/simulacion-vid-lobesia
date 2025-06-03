@@ -1,10 +1,14 @@
 export default function Footer() {
   return (
-    <footer className="bg-green-900 text-white py-4">
+    <footer className="bg-green-800 text-white py-4 mt-auto fixed bottom-0 w-full">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-green-200">© {new Date().getFullYear()} Simulador de Lobesia Botrana</p>
-          <p className="text-sm text-green-200 mt-2 md:mt-0">Desarrollado para la Cooperativa La Riojana</p>
+          <div className="text-sm mb-2 md:mb-0">
+            © 2024 Simulador de Lobesia Botrana. Todos los derechos reservados.
+          </div>
+          <div className="text-sm">
+            Desarrollado por el Grupo de Investigación en Simulación y Modelado
+          </div>
         </div>
       </div>
     </footer>

@@ -92,9 +92,10 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
         </CardHeader>
         <CardContent className="pt-6">
           <Tabs defaultValue="summary" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="summary">Resumen</TabsTrigger>
-              <TabsTrigger value="generations">Generaciones</TabsTrigger>
+              <TabsTrigger value="impact">Impacto</TabsTrigger>
+              <TabsTrigger value="effectiveness">Efectividad de Controles</TabsTrigger>
             </TabsList>
 
             <TabsContent value="summary" className="space-y-4 pt-4">
@@ -141,7 +142,7 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
               </Alert>
             </TabsContent>
 
-            <TabsContent value="generations" className="space-y-4 pt-4">
+            <TabsContent value="impact" className="space-y-4 pt-4">
               <div className="grid grid-cols-1 gap-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-700 mb-3">Impacto por Generación</h3>
@@ -223,7 +224,11 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
                     (Botrytis) que facilita en las bayas maduras.
                   </AlertDescription>
                 </Alert>
+              </div>
+            </TabsContent>
 
+            <TabsContent value="effectiveness" className="space-y-4 pt-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-700 mb-3 mt-4">
                     Efectividad de Control por Generación
@@ -256,14 +261,6 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
                 </div>
               </div>
             </TabsContent>
-
-            {/* <TabsContent value="lifecycle" className="pt-4">
-              <VineLifecycleVisualization grapeVariety={grapeVariety} />
-            </TabsContent>
-
-            <TabsContent value="economics" className="pt-4">
-              <CostBenefitAnalysis economicImpact={economicImpact} />
-            </TabsContent> */}
           </Tabs>
 
           <div className="mt-6 space-y-4">

@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import { Loader2 } from "lucide-react"
+import { Loader2, ChevronDown, ChevronUp } from "lucide-react"
 
 interface SimulationFormProps {
   onSimulate: (config: SimulationConfig) => void
@@ -29,6 +29,8 @@ export default function SimulationForm({ onSimulate, isLoading }: SimulationForm
       sterile_Insect_Technique: false,
     },
   })
+
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   const handleControlMethodToggle = (method: keyof SimulationConfig["controlMethods"]) => {
     setConfig({
@@ -49,9 +51,20 @@ export default function SimulationForm({ onSimulate, isLoading }: SimulationForm
     <form onSubmit={handleSubmit}>
       <Card className="shadow-md">
         <CardHeader className="bg-green-700 text-white rounded-t-lg">
-          <CardTitle className="text-lg">Configuración de la Simulación</CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-lg">Configuración de la Simulación</CardTitle>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="lg:hidden text-white hover:bg-green-600"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+            >
+              {isCollapsed ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
+            </Button>
+          </div>
         </CardHeader>
-        <CardContent className="pt-6">
+        <CardContent className={`pt-6 ${isCollapsed ? 'hidden lg:block' : ''}`}>
           {/* Sección: Datos de Viñedo */}
           <h3 className="text-md font-semibold text-green-800 mb-2">Datos de Viñedo</h3>
           <p className="text-sm text-gray-600 mb-4">Ingrese la información básica de su viñedo para personalizar la simulación según sus características productivas.</p>

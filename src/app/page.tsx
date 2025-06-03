@@ -135,7 +135,6 @@ export default function Home() {
 
     setIsLoading(true);
 
-    // Agregamos un pequeño retraso para asegurar que el estado de carga se muestre
     await new Promise(resolve => setTimeout(resolve, 100));
 
     const typeOfVariety =
@@ -316,7 +315,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-amber-50 to-amber-100">
+    <main className="min-h-screen bg-gradient-to-b from-amber-50 to-amber-100 pb-20">
       <Header />
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
