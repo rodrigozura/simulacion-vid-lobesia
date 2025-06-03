@@ -36,8 +36,6 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
     yieldLoss,
     yieldPerHectare,
     baseYieldPerHectare,
-    acidityQuality,
-    qualityLoss,
     generationImpact,
     controlEffectiveness,
     recommendations,
@@ -45,8 +43,7 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
   } = results
 
   const varietyName = grapeVariety === "malbec" ? "Malbec" : "Torrontés Riojano"
-  const yieldPercentage = 100 - yieldLoss
-  const qualityPercentage = 100 - qualityLoss
+  // const yieldPercentage = 100 - yieldLoss
 
   const severityLevel = () => {
     if (yieldLoss < 15) return "Bajo"
@@ -66,6 +63,7 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
     { name: "1ª Gen (Floración)", impacto: generationImpact.generation1 },
     { name: "2ª Gen (Cuaje)", impacto: generationImpact.generation2 },
     { name: "3ª Gen (Envero)", impacto: generationImpact.generation3 },
+    { name: "4ª Gen (Maduración)", impacto: generationImpact.generation4 },
   ]
 
   const controlData = Object.entries(controlEffectiveness).map(([key, value]) => {
@@ -81,11 +79,6 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
       efectividad: value,
     }
   })
-
-  const qualityImpactData = [
-    { name: "Acidez apta comercialmente", value: acidityQuality },
-    { name: "Acidez no apta", value: 100 - acidityQuality },
-  ]
 
   return (
     <div className="space-y-6">
@@ -104,7 +97,7 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
             </TabsList>
 
             <TabsContent value="summary" className="space-y-4 pt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
                   <h3 className="text-lg font-semibold text-amber-800 mb-2">Rendimiento Productivo por Ha (kg/ha)</h3>
                   <div className="flex items-center justify-between">
@@ -120,27 +113,12 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
                     <span className="font-bold text-green-600">{results.yieldPerHectare} kg/ha</span>
                   </div>
                   <div className="mt-4 h-4 bg-gray-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-green-600 rounded-full" style={{ width: `${yieldPercentage}%` }}></div>
-                  </div>
-                </div>
-
-                <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
-                  <h3 className="text-lg font-semibold text-amber-800 mb-2">Calidad enológica de las uvas</h3>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Pérdida de calidad:</span>
-                    <span className="font-bold text-red-600">{qualityLoss.toFixed(1)}%</span>
-                  </div>
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="text-gray-600">Acidez apta comercialmente:</span>
-                    <span className="font-bold text-green-600">{results.acidityQuality.toFixed(1)}%</span>
-                  </div>
-                  <div className="mt-4 h-4 bg-gray-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-green-600 rounded-full" style={{ width: `${qualityPercentage}%` }}></div>
+                    <div className="h-full bg-green-600 rounded-full" style={{ width: `${yieldLoss}%` }}></div>
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div className="grid grid-cols-1 gap-4 mt-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-700 mb-3">Impacto por Generación</h3>
                   <ResponsiveContainer width="100%" height={200}>
@@ -151,29 +129,6 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
                       <Tooltip />
                       <Bar dataKey="impacto" fill="#8884d8" />
                     </BarChart>
-                  </ResponsiveContainer>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-700 mb-3">Impacto en Calidad</h3>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <PieChart>
-                      <Pie
-                        data={qualityImpactData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      >
-                        {qualityImpactData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={index === 0 ? "#4CAF50" : "#F44336"} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
                   </ResponsiveContainer>
                 </div>
               </div>
@@ -243,6 +198,20 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
                       </p>
                     </CardContent>
                   </Card>
+
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">4ª Generación (Maduración)</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-600">
+                        Impacto: <span className="font-bold">{generationImpact.generation4}%</span>
+                      </p>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Afecta a las bayas en etapa final de maduración, aumentando el riesgo de podredumbres y pérdidas de calidad.
+                      </p>
+                    </CardContent>
+                  </Card>
                 </div>
 
                 <Alert className="mt-2">
@@ -281,13 +250,13 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
               </div>
             </TabsContent>
 
-            <TabsContent value="lifecycle" className="pt-4">
+            {/* <TabsContent value="lifecycle" className="pt-4">
               <VineLifecycleVisualization grapeVariety={grapeVariety} />
             </TabsContent>
 
             <TabsContent value="economics" className="pt-4">
               <CostBenefitAnalysis economicImpact={economicImpact} />
-            </TabsContent>
+            </TabsContent> */}
           </Tabs>
 
           <div className="mt-6 space-y-4">

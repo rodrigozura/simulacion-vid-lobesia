@@ -14,6 +14,7 @@ export interface GenerationImpact {
   generation1: number
   generation2: number
   generation3: number
+  generation4: number
 }
 
 export interface ControlEffectiveness {
@@ -43,10 +44,10 @@ export interface SimulationResult {
   yieldPerHectare: number
   baseYieldPerHectare: number
   yieldLoss: number
-  acidityQuality: number
-  qualityLoss: number
+  acidityQuality?: number
+  qualityLoss?: number
   generationImpact: GenerationImpact
   controlEffectiveness: ControlEffectiveness
   recommendations: string[]
-  economicImpact: EconomicImpact
+  economicImpact?: EconomicImpact
 }

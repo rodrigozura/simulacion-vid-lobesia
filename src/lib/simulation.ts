@@ -160,10 +160,10 @@ export function runSimulation(config: SimulationConfig): SimulationResult {
       returnOnInvestment,
       costPerHectare: totalControlCost, // O ajusta según tu lógica
       methodCosts: {
-        pheromoneTraps: config.controlMethods.pheromoneTraps ? controlCosts.pheromoneTraps : 0,
-        matingDisruption: config.controlMethods.matingDisruption ? controlCosts.matingDisruption : 0,
+        pheromoneTraps: config.controlMethods.pheromone_Traps ? controlCosts.pheromoneTraps : 0,
+        matingDisruption: config.controlMethods.mating_Disruption ? controlCosts.matingDisruption : 0,
         insecticides: config.controlMethods.insecticides ? controlCosts.insecticides : 0,
-        sterileInsectTechnique: config.controlMethods.sterileInsectTechnique ? controlCosts.sterileInsectTechnique : 0,
+        sterileInsectTechnique: config.controlMethods.sterile_Insect_Technique ? controlCosts.sterileInsectTechnique : 0,
       }
     }
   }
@@ -199,7 +199,7 @@ function calculateAgeFactorQuality(age: number): number {
   }
 }
 
-function generateRecommendations(
+export function generateRecommendations(
   config: SimulationConfig,
   yieldLoss: number,
   qualityLoss: number,

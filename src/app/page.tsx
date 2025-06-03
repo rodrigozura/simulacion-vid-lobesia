@@ -1,51 +1,42 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import SimulationForm from "@/components/simulation-form"
-import SimulationResults from "@/components/simulation-results"
-import type { SimulationConfig, SimulationResult } from "@/lib/types"
-import Header from "@/components/header"
-import Footer from "@/components/footer"
-import { ADULT_FEMALE_FERTILITY, AVERAGE_YIELD_KG_OF_VID_PER_HA, CONTROL_METHODS, DEGREE_DAYS_ACCUMULATED_PER_GENERATION, GRAPE_VARIETY, MONTHS, MORTALITY_RATE_LARVA } from "@/constants/constants"
-import useNormalDistribution from "@/hooks/useNormalDitribution"
-import usePseudorandomNumber from "@/hooks/usePseudorandomNumber"
-import usePoissonDistribution from "@/hooks/usePoissonDistribution"
-import useExponentialDistribution from "@/hooks/useExponentialDistribution"
-import useUniformDistribution from "@/hooks/useUniformDistribution"
-
-
+import { useState } from "react";
+import SimulationForm from "@/components/simulation-form";
+import SimulationResults from "@/components/simulation-results";
+import type { SimulationConfig, SimulationResult } from "@/lib/types";
+import Header from "@/components/header";
+import Footer from "@/components/footer";
+import {
+  ADULT_FEMALE_FERTILITY,
+  AVERAGE_YIELD_KG_OF_VID_PER_HA,
+  CONTROL_METHODS,
+  DEGREE_DAYS_ACCUMULATED_PER_GENERATION,
+  GRAPE_VARIETY,
+  MONTHS,
+  MORTALITY_RATE_LARVA,
+} from "@/constants/constants";
+import useNormalDistribution from "@/hooks/useNormalDitribution";
+import usePseudorandomNumber from "@/hooks/usePseudorandomNumber";
+import useExponentialDistribution from "@/hooks/useExponentialDistribution";
+import useUniformDistribution from "@/hooks/useUniformDistribution";
+import usePoissonDistribution from "@/hooks/usePoissonDistribution";
+import { generateRecommendations } from "@/lib/simulation";
 
 export default function Home() {
-  const getNextRandomValue = usePseudorandomNumber()
-  const generateNormal = useNormalDistribution()
-  const generatePoisson = usePoissonDistribution()
-  const generateExponential = useExponentialDistribution()
-  const generateUniform = useUniformDistribution()
+  const getNextRandomValue = usePseudorandomNumber();
+  const generateNormal = useNormalDistribution();
+  const generatePoisson = usePoissonDistribution();
+  const generateExponential = useExponentialDistribution();
+  const generateUniform = useUniformDistribution();
 
-  const [results, setResults] = useState<SimulationResult | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
+  const [results, setResults] = useState<SimulationResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  //Definimos algunas variables
-  let qtyGenerationPests = 0
-  let initialInfestation = false
-  let totalEggsFirstGeneration = 0
-  let totalEggsSecondGeneration = 0
-  let totalEggsThirdGeneration = 0
-  let totalEggsFourthGeneration = 0
-  // const yieldRatePerHectare = 0
-  let grossYieldRate = 0
-  let netYieldRate = 0
-  let hectareNumber = 0
-  let totalDamage = 0
 
-  //start variables to damage per generation
-  let damageByFirstGeneration = 0
-  let damageBySecondGeneration = 0
-  let damageByThirdGeneration = 0
-  let damageByFourthGeneration = 0
 
-  function calculateDegreeDaysAcumulationPerMonth(monthKey: keyof typeof MONTHS): number {
-
+  function calculateDegreeDaysAcumulationPerMonth(
+    monthKey: keyof typeof MONTHS
+  ): number {
     const month = MONTHS[monthKey];
 
     const days = month.DAYS;
@@ -57,98 +48,161 @@ export default function Home() {
     for (let d = 0; d < days; d++) {
       const tempDia = generateNormal(media, desvio);
       if (tempDia > umbral) {
-        acumulado += (tempDia - umbral);
+        acumulado += tempDia - umbral;
       }
     }
     return acumulado;
   }
 
-  function simulateDamageGeneration(quantityLarvaGeneration: number, damageAverageByLarva: number) {
-    let damageByGneration = 0
-    let larvaCount = 0
+  function simulateDamageGeneration(
+    quantityLarvaGeneration: number,
+    damageAverageByLarva: number
+  ) {
+    let damageByGneration = 0;
+    let larvaCount = 0;
     while (larvaCount < quantityLarvaGeneration) {
-      const damageByLarva = generatePoisson(damageAverageByLarva)
+      const damageByLarva = generatePoisson(damageAverageByLarva);
       // console.log("Daño x larva numero:", larvaCount, " es igual a: ", damageByLarva)
-      damageByGneration += damageByLarva
-      larvaCount++
+      damageByGneration += damageByLarva;
+      larvaCount++;
     }
-    return damageByGneration
+    return damageByGneration;
   }
 
   function simulateEggsNextGeneration(quantityAdultGeneration: number): number {
-    const eggsByEachAdult = generateNormal(ADULT_FEMALE_FERTILITY.AVERAGE, ADULT_FEMALE_FERTILITY.DESVIATION)
-    const totalEggsByGeneration = quantityAdultGeneration * eggsByEachAdult / 2
-    return Math.round(totalEggsByGeneration)
+    const eggsByEachAdult = generateNormal(
+      ADULT_FEMALE_FERTILITY.AVERAGE,
+      ADULT_FEMALE_FERTILITY.DESVIATION
+    );
+    const totalEggsByGeneration =
+      (quantityAdultGeneration * eggsByEachAdult) / 2;
+    return Math.round(totalEggsByGeneration);
   }
 
-  function simulateSurvivalByGeneration(totalEggsByGeneration: number, effectivityOfControlMethodMin: number, effectivityOfControlMethodMax: number) {
-    const effectivityOfControlMethod = generateUniform(effectivityOfControlMethodMin, effectivityOfControlMethodMax)
-    const mortalityRateOfGeneration = generateUniform(MORTALITY_RATE_LARVA.MIN_PERCENTAGE, MORTALITY_RATE_LARVA.MAX_PERCENTAGE)
-    const quantityLarvaByGeneration = totalEggsByGeneration * (1 - mortalityRateOfGeneration) * (1 - effectivityOfControlMethod)
-    return quantityLarvaByGeneration
+  function simulateSurvivalByGeneration(
+    totalEggsByGeneration: number,
+    effectivityOfControlMethodMin: number,
+    effectivityOfControlMethodMax: number
+  ) {
+    const effectivityOfControlMethod = generateUniform(
+      effectivityOfControlMethodMin,
+      effectivityOfControlMethodMax
+    );
+    const mortalityRateOfGeneration = generateUniform(
+      MORTALITY_RATE_LARVA.MIN_PERCENTAGE,
+      MORTALITY_RATE_LARVA.MAX_PERCENTAGE
+    );
+    const quantityLarvaByGeneration =
+      totalEggsByGeneration *
+      (1 - mortalityRateOfGeneration) *
+      (1 - effectivityOfControlMethod);
+    return quantityLarvaByGeneration;
   }
 
   const handleSimulate = (config: SimulationConfig) => {
-    // console.log("config: ", config)
-    setIsLoading(true)
+    //Definimos algunas variables
+    let qtyGenerationPests = 0;
+    let initialInfestation = false;
+    let totalEggsFirstGeneration = 0;
+    let totalEggsSecondGeneration = 0;
+    let totalEggsThirdGeneration = 0;
+    let totalEggsFourthGeneration = 0;
+    // const yieldRatePerHectare = 0
+    let grossYieldRate = 0;
+    let netYieldRate = 0;
+    let hectareNumber = 0;
+    let totalDamage = 0;
 
-    //---------------------------------------------------------------
+    //start variables to damage per generation
+    let damageByFirstGeneration = 0;
+    let damageBySecondGeneration = 0;
+    let damageByThirdGeneration = 0;
+    let damageByFourthGeneration = 0;
+    setIsLoading(true);
 
-    const typeOfVariety = GRAPE_VARIETY[config.grapeVariety.toUpperCase() as keyof typeof GRAPE_VARIETY]
-    const controlMethodSelected = Object.entries(config.controlMethods).find(([_, value]) => value === true)?.[0] as keyof typeof CONTROL_METHODS
+    // const normalNumber = generateNormal(
+    //   ADULT_FEMALE_FERTILITY.AVERAGE,
+    //   ADULT_FEMALE_FERTILITY.DESVIATION
+    // )
+    // if(normalNumber < 119.16){
+    //   console.log("FALLOOOOOOOOOOOOOOOOOOOOOOOOOO")
+    //   console.log(normalNumber)
+    // }else{
+    //   console.log(normalNumber)
+    // }
 
-    const degreeDaysAcumulationPerMonth = typeOfVariety.MONTHS_OF_GROWTH.map((item) => {
-      return {
-        month: item,
-        acumulation: calculateDegreeDaysAcumulationPerMonth(item.toUpperCase() as keyof typeof MONTHS)
+
+
+    // setIsLoading(false)
+
+    // return
+    const typeOfVariety =
+      GRAPE_VARIETY[
+      config.grapeVariety.toUpperCase() as keyof typeof GRAPE_VARIETY
+      ];
+    const controlMethodSelected = Object.entries(config.controlMethods).find(
+      ([_, value]) => value === true
+    )?.[0] as keyof typeof CONTROL_METHODS;
+
+    const degreeDaysAcumulationPerMonth = typeOfVariety.MONTHS_OF_GROWTH.map(
+      (item) => {
+        return {
+          month: item,
+          acumulation: calculateDegreeDaysAcumulationPerMonth(
+            item.toUpperCase() as keyof typeof MONTHS
+          ),
+        };
       }
-    })
+    );
 
     const degreeDaysAcumulation = {
       perMonth: degreeDaysAcumulationPerMonth,
-      total: degreeDaysAcumulationPerMonth.reduce((acc, curr) => acc + curr.acumulation, 0),
-    }
+      total: degreeDaysAcumulationPerMonth.reduce(
+        (acc, curr) => acc + curr.acumulation,
+        0
+      ),
+    };
     // console.log("Degree Days Acumulation: ", degreeDaysAcumulation)
-
-    
 
     while (hectareNumber < config.hectares) {
       // Calculate number of adult per hectare with Poisson method
-      const qtyAdult = generatePoisson(config.initialInfestation)
-      // console.log("qtyAdult: ", qtyAdult)
+      const qtyAdult = generatePoisson(config.initialInfestation);
+      // console.log("Cant. Adultos: ", qtyAdult, "- Hectarea Nº : ", hectareNumber)
 
       //Check if qty adult is bigger than 1
       if (qtyAdult > 1) {
-        console.log("Qty adult is: ", qtyAdult)
-
         // iterate adults
-        let adultCount = 0
-        while (adultCount < qtyAdult) {
+        let adultCount = 0;
+        while (adultCount < qtyAdult / 2) {
           // generate randomNumber and check the probability of infestation with percentage of the vine selected
-          const randomNumber = getNextRandomValue()
-          // console.log("randomNumber", randomNumber)
+          const randomNumber = getNextRandomValue();
           if (randomNumber <= typeOfVariety.EFFECTIVE_INFESTATION_PER_CLUSTER) {
-            initialInfestation = true
+            initialInfestation = true;
             // calculate the qty of eggs by each adults
-            const eggsByEachAdult = generateNormal(ADULT_FEMALE_FERTILITY.AVERAGE, ADULT_FEMALE_FERTILITY.DESVIATION)
-            totalEggsFirstGeneration += eggsByEachAdult
+            const eggsByEachAdult = generateNormal(
+              ADULT_FEMALE_FERTILITY.AVERAGE,
+              ADULT_FEMALE_FERTILITY.DESVIATION
+            );
+            totalEggsFirstGeneration += eggsByEachAdult;
           }
 
-          adultCount++
+          adultCount++;
         }
       }
 
       //Calculate yield per hectare with poisson
-      const yieldRatePerHectare = generatePoisson(AVERAGE_YIELD_KG_OF_VID_PER_HA)
-      grossYieldRate += yieldRatePerHectare
+      const yieldRatePerHectare = 13557;
+      grossYieldRate += yieldRatePerHectare;
 
-      hectareNumber++
+      hectareNumber++;
     }
+    totalEggsFirstGeneration = Math.floor(totalEggsFirstGeneration)
+    // console.log("Total Eggs:", totalEggsFirstGeneration)
+    // console.log("Rendimiento bruto:", grossYieldRate)
 
     //after finished the while in hectares check the initial infestion
 
     if (initialInfestation) {
-      
 
       // Calculate the necessary degree days to start generation of larvas
       const necessaryDegreeDaysToStartGeneration = generateNormal(DEGREE_DAYS_ACCUMULATED_PER_GENERATION.AVERAGE, DEGREE_DAYS_ACCUMULATED_PER_GENERATION.DESVIATION)
@@ -159,24 +213,31 @@ export default function Home() {
         qtyGenerationPests++
         degreeDaysCount = degreeDaysCount + necessaryDegreeDaysToStartGeneration
       }
+      console.log("Cantidad de generaciones: ", qtyGenerationPests)
 
-      const qtyAdultsFirtGeneration = simulateSurvivalByGeneration(
+      const qtyAdultsFirtGeneration = Math.floor(simulateSurvivalByGeneration(
         totalEggsFirstGeneration,
         CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MIN,
-        CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MAX)
-      damageByFirstGeneration = simulateDamageGeneration(qtyAdultsFirtGeneration, typeOfVariety.DAMAGE_PER_GENERATION.FIRST_GENERATION)
+        CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MAX))
+      damageByFirstGeneration = Math.floor(simulateDamageGeneration(qtyAdultsFirtGeneration, typeOfVariety.DAMAGE_PER_GENERATION.FIRST_GENERATION))
+
+      // console.log("Cant. de adultos 1 Gen", qtyAdultsFirtGeneration)
+      // console.log("Daño Primera Generacion: ", damageByFirstGeneration)
 
       if (qtyGenerationPests > 1) {
         //Calculate second generation
 
-        totalEggsSecondGeneration = simulateEggsNextGeneration(damageByFirstGeneration)
-        const qtyAdultsSecondGeneration = simulateSurvivalByGeneration(
+        totalEggsSecondGeneration = Math.floor(simulateEggsNextGeneration(damageByFirstGeneration))
+        const qtyAdultsSecondGeneration = Math.floor(simulateSurvivalByGeneration(
           totalEggsSecondGeneration,
           CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MIN,
-          CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MAX)
-        damageBySecondGeneration = simulateDamageGeneration(qtyAdultsSecondGeneration, typeOfVariety.DAMAGE_PER_GENERATION.SECOND_GENERATION)
+          CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MAX))
+        damageBySecondGeneration = Math.floor(simulateDamageGeneration(qtyAdultsSecondGeneration, typeOfVariety.DAMAGE_PER_GENERATION.SECOND_GENERATION))
+        // console.log("Cant. de adultos 2 Gen", qtyAdultsSecondGeneration)
+        // console.log("Daño Segunda Generacion: ", damageBySecondGeneration)
+      }
+      if (qtyGenerationPests > 2) {
 
-      } else if (qtyGenerationPests > 2) {
         //Calculate third generation
 
         totalEggsThirdGeneration = simulateEggsNextGeneration(damageByFirstGeneration)
@@ -186,7 +247,11 @@ export default function Home() {
           CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MAX)
         damageByThirdGeneration = simulateDamageGeneration(qtyAdultsThirdGeneration, typeOfVariety.DAMAGE_PER_GENERATION.THIRD_GENERATION)
 
-      } else if (qtyGenerationPests > 3) {
+        // console.log("Cant. de adultos 3 Gen", totalEggsThirdGeneration)
+        // console.log("Daño Tercer Generacion: ", damageByThirdGeneration)
+
+      }
+      if (qtyGenerationPests > 3) {
         //Calculate fourth generation
         totalEggsFourthGeneration = simulateEggsNextGeneration(damageByFirstGeneration)
         const qtyAdultsFourthGeneration = simulateSurvivalByGeneration(
@@ -194,26 +259,55 @@ export default function Home() {
           CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MIN,
           CONTROL_METHODS[controlMethodSelected.toUpperCase() as keyof typeof CONTROL_METHODS].EFFECTIVENESS_MAX)
         damageByFourthGeneration = simulateDamageGeneration(qtyAdultsFourthGeneration, typeOfVariety.DAMAGE_PER_GENERATION.FOURTH_GENERATION)
+        // console.log("Cant. de adultos 4 Gen", totalEggsFourthGeneration)
+        // console.log("Daño Cuarto Generacion: ", damageByFourthGeneration)
+
       }
 
+
+
       totalDamage = damageByFirstGeneration + damageBySecondGeneration + damageByThirdGeneration + damageByFourthGeneration
-    } else {
-      console.log("without Infestion")
     }
 
-    //Calculate net yield rate with the gross and the damage
-    console.log("Rendimiento Bruto: ", grossYieldRate)
-    console.log("Daño Total:", totalDamage)
-    netYieldRate = grossYieldRate - totalDamage
-    console.log("Rendimiento neto", netYieldRate)
+    netYieldRate = grossYieldRate - totalDamage;
+    const grossYieldRatePerHectare = Math.floor(grossYieldRate / config.hectares);
 
-    // const simulationResults = runSimulation(config)
-    // setResults(simulationResults)
+    // Calcular el impacto porcentual de cada generación
+    const calculateImpactPercentage = (damage: number) => {
+      return Number(((damage / grossYieldRatePerHectare) * 100).toFixed(2));
+    };
+
+    setResults({
+      grapeVariety: config.grapeVariety || "malbec",
+      yieldPerHectare: Math.floor(netYieldRate / config.hectares) || 0,
+      baseYieldPerHectare: grossYieldRatePerHectare || 0,
+      yieldLoss:
+        100 -
+        ((netYieldRate / config.hectares) * 100) /
+        (grossYieldRate / config.hectares) || 0,
+      generationImpact: {
+        generation1: calculateImpactPercentage(damageByFirstGeneration) || 0,
+        generation2: calculateImpactPercentage(damageBySecondGeneration) || 0,
+        generation3: calculateImpactPercentage(damageByThirdGeneration) || 0,
+        generation4: calculateImpactPercentage(damageByFourthGeneration) || 0,
+      },
+      controlEffectiveness: {
+        pheromoneTraps: 0,
+        matingDisruption: 0,
+        insecticides: 0,
+        sterileInsectTechnique: 0,
+      },
+      recommendations: generateRecommendations(config, netYieldRate, 10, {
+        generation1: damageByFirstGeneration,
+        generation2: damageBySecondGeneration,
+        generation3: damageByThirdGeneration,
+      }),
+    });
 
     //---------------------------------------------------------------
 
-    setIsLoading(false)
-  }
+    setIsLoading(false);
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-amber-50 to-amber-100">
@@ -233,11 +327,16 @@ export default function Home() {
                     Bienvenido al Simulador de Lobesia Botrana
                   </h3>
                   <p className="text-gray-600 mb-4">
-                    Configure los parámetros de simulación en el panel izquierdo y haga clic en "Simular" para ver los
-                    resultados del impacto de la plaga en sus viñedos.
+                    Configure los parámetros de simulación en el panel izquierdo
+                    y haga clic en "Simular" para ver los resultados del impacto
+                    de la plaga en sus viñedos.
                   </p>
                   <div className="flex justify-center">
-                    <img src="/placeholder.svg?height=200&width=300" alt="Lobesia botrana" className="rounded-md" />
+                    <img
+                      src="/placeholder.svg?height=200&width=300"
+                      alt="Lobesia botrana"
+                      className="rounded-md"
+                    />
                   </div>
                 </div>
               </div>
@@ -247,12 +346,8 @@ export default function Home() {
       </div>
       <Footer />
     </main>
-  )
+  );
 }
-
-
-
-
 
 /*
 

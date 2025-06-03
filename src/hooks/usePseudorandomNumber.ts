@@ -2,10 +2,9 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 
 const usePseudorandomNumber = () => {
   const generateRandomParameters = () => {
-    const seed = Math.floor(Math.random() * 100000) + 1; // Semilla
-    const multiplier = Math.floor(Math.random() * 100000) + 1; // Multiplicador
-    const modulus = Math.floor(Math.random() * 100000) + 1; // Módulo
-   
+    const seed = 1317; // Semilla
+    const multiplier = 5631; // Multiplicador
+    const modulus = 547; // Módulo
     return { seed, multiplier, modulus };
   };
 
@@ -21,7 +20,7 @@ const usePseudorandomNumber = () => {
     }
     const u = nextValue / randomParameters.modulus;
     currentValueRef.current = nextValue; // Actualizamos la referencia directamente
-    return Math.random();
+    return Number(u.toFixed(3));
   }, [randomParameters]);
 
   useEffect(() => {
