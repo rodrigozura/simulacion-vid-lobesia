@@ -99,7 +99,7 @@ export default function Home() {
     return quantityLarvaByGeneration;
   }
 
-  const handleSimulate = (config: SimulationConfig) => {
+  const handleSimulate = async (config: SimulationConfig) => {
     //Definimos algunas variables
     let qtyGenerationPests = 0;
     let initialInfestation = false;
@@ -107,7 +107,6 @@ export default function Home() {
     let totalEggsSecondGeneration = 0;
     let totalEggsThirdGeneration = 0;
     let totalEggsFourthGeneration = 0;
-    // const yieldRatePerHectare = 0
     let grossYieldRate = 0;
     let netYieldRate = 0;
     let hectareNumber = 0;
@@ -118,24 +117,12 @@ export default function Home() {
     let damageBySecondGeneration = 0;
     let damageByThirdGeneration = 0;
     let damageByFourthGeneration = 0;
+    
     setIsLoading(true);
+    
+    // Agregamos un pequeño retraso para asegurar que el estado de carga se muestre
+    await new Promise(resolve => setTimeout(resolve, 100));
 
-    // const normalNumber = generateNormal(
-    //   ADULT_FEMALE_FERTILITY.AVERAGE,
-    //   ADULT_FEMALE_FERTILITY.DESVIATION
-    // )
-    // if(normalNumber < 119.16){
-    //   console.log("FALLOOOOOOOOOOOOOOOOOOOOOOOOOO")
-    //   console.log(normalNumber)
-    // }else{
-    //   console.log(normalNumber)
-    // }
-
-
-
-    // setIsLoading(false)
-
-    // return
     const typeOfVariety =
       GRAPE_VARIETY[
       config.grapeVariety.toUpperCase() as keyof typeof GRAPE_VARIETY
@@ -304,8 +291,8 @@ export default function Home() {
       }),
     });
 
-    //---------------------------------------------------------------
-
+    // Agregamos un pequeño retraso antes de quitar el estado de carga
+    await new Promise(resolve => setTimeout(resolve, 100));
     setIsLoading(false);
   };
 
@@ -318,7 +305,19 @@ export default function Home() {
             <SimulationForm onSimulate={handleSimulate} isLoading={isLoading} />
           </div>
           <div className="lg:col-span-8">
-            {results ? (
+            {isLoading ? (
+              <div className="bg-white rounded-lg shadow-md p-6 h-full flex items-center justify-center">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-700 mx-auto mb-4"></div>
+                  <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                    Procesando Simulación
+                  </h3>
+                  <p className="text-gray-600">
+                    Calculando el impacto de Lobesia botrana en su viñedo...
+                  </p>
+                </div>
+              </div>
+            ) : results ? (
               <SimulationResults results={results} />
             ) : (
               <div className="bg-white rounded-lg shadow-md p-6 h-full flex items-center justify-center">
@@ -333,7 +332,7 @@ export default function Home() {
                   </p>
                   <div className="flex justify-center">
                     <img
-                      src="/placeholder.svg?height=200&width=300"
+                      src="/placeholder-initImage.png"
                       alt="Lobesia botrana"
                       className="rounded-md"
                     />
