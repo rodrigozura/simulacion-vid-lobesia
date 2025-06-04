@@ -18,6 +18,7 @@ interface SimulationFormProps {
 }
 
 export default function SimulationForm({ onSimulate, isLoading }: SimulationFormProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false)
   const [config, setConfig] = useState<SimulationConfig>({
     grapeVariety: "malbec",
     hectares: 1000,
@@ -30,8 +31,6 @@ export default function SimulationForm({ onSimulate, isLoading }: SimulationForm
     },
   })
 
-  const [isCollapsed, setIsCollapsed] = useState(false)
-
   const handleControlMethodToggle = (method: keyof SimulationConfig["controlMethods"]) => {
     setConfig({
       ...config,
@@ -42,9 +41,20 @@ export default function SimulationForm({ onSimulate, isLoading }: SimulationForm
     })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    onSimulate(config)
+    await onSimulate(config)
+    setIsCollapsed(true)
+    
+    // Scroll suave a los resultados en móvil
+    if (window.innerWidth < 1024) { // lg breakpoint
+      setTimeout(() => {
+        const resultsElement = document.querySelector('.simulation-results')
+        if (resultsElement) {
+          resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }, 800) // Aumentamos el tiempo de espera para que coincida con la animación más lenta
+    }
   }
 
   return (
@@ -64,11 +74,17 @@ export default function SimulationForm({ onSimulate, isLoading }: SimulationForm
             </Button>
           </div>
         </CardHeader>
-        <CardContent className={`pt-6 ${isCollapsed ? 'hidden lg:block' : ''}`}>
+        <CardContent 
+          className={`transition-all duration-700 ease-in-out ${
+            isCollapsed 
+              ? 'max-h-0 opacity-0 overflow-hidden lg:max-h-none lg:opacity-100 lg:block' 
+              : 'max-h-[2000px] opacity-100 lg:max-h-none'
+          }`}
+        >
           {/* Sección: Datos de Viñedo */}
-          <h3 className="text-md font-semibold text-green-800 mb-2">Datos de Viñedo</h3>
-          <p className="text-sm text-gray-600 mb-4">Ingrese la información básica de su viñedo para personalizar la simulación según sus características productivas.</p>
-          <div className="space-y-4 mb-4">
+          <div className={`${isCollapsed ? '' : 'pt-6'} space-y-4 mb-4`}>
+            <h3 className="text-md font-semibold text-green-800 mb-2 lg:mt-4">Datos de Viñedo</h3>
+            <p className="text-sm text-gray-600 mb-4">Ingrese la información básica de su viñedo para personalizar la simulación según sus características productivas.</p>
             <div className="space-y-2">
               <Label htmlFor="grape-variety">Variedad de Uva</Label>
               <Select

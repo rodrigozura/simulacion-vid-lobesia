@@ -80,12 +80,16 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
   })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 simulation-results">
       <Card className="shadow-md">
         <CardHeader className="bg-green-700 text-white rounded-t-lg">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <CardTitle className="text-lg">Resultados de la Simulación - {varietyName}</CardTitle>
-            <Badge className={severityColor()}>Impacto: {severityLevel()}</Badge>
+            <div className="self-end sm:self-auto">
+              <Badge className={`${severityColor()} whitespace-nowrap`}>
+                Impacto: {severityLevel()}
+              </Badge>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="pt-6">
@@ -93,7 +97,10 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="summary">Resumen</TabsTrigger>
               <TabsTrigger value="impact">Impacto</TabsTrigger>
-              <TabsTrigger value="effectiveness">Efectividad de Controles</TabsTrigger>
+              <TabsTrigger value="effectiveness">
+                <span className="hidden sm:inline">Efectividad de Control</span>
+                <span className="sm:hidden">Efectividad</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="summary" className="space-y-4 pt-4">
