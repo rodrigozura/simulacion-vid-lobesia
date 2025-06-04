@@ -128,7 +128,7 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
                       <YAxis label={{ value: "Impacto (%)", angle: -90, position: "insideLeft" }} />
-                      <Tooltip />
+                      <Tooltip formatter={(value: number) => [`${value}%`, "Impacto"]} />
                       <Bar dataKey="impacto" fill="#8884d8" />
                     </BarChart>
                   </ResponsiveContainer>
@@ -151,7 +151,7 @@ export default function SimulationResults({ results }: SimulationResultsProps) {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
                       <YAxis label={{ value: "Impacto (%)", angle: -90, position: "insideLeft" }} />
-                      <Tooltip />
+                      <Tooltip  formatter={(value: number) => [`${value}%`, "Impacto"]} />
                       <Legend />
                       <Bar dataKey="impacto" fill="#8884d8" name="Impacto (%)" />
                     </BarChart>

@@ -32,10 +32,10 @@ export interface EconomicImpact {
   returnOnInvestment: number
   costPerHectare: number
   methodCosts: {
-    pheromoneTraps: number
-    matingDisruption: number
+    pheromone_Traps: number
+    mating_Disruption: number
     insecticides: number
-    sterileInsectTechnique: number
+    sterile_Insect_Technique: number
   }
 }
 
