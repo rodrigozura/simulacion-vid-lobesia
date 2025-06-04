@@ -28,7 +28,7 @@ Este simulador ha sido desarrollado en entorno **Next.js 15.2.4** con React 18, 
 
 ### 📦 Dependencias principales
 
-\`\`\`json
+```json
 {
   "next": "15.2.4",
   "react": "^18.0.0",
@@ -42,7 +42,7 @@ Este simulador ha sido desarrollado en entorno **Next.js 15.2.4** con React 18, 
   "sonner": "^1.7.1",
   "date-fns": "3.0.0"
 }
-\`\`\`
+```
 
 ---
 
@@ -50,7 +50,7 @@ Este simulador ha sido desarrollado en entorno **Next.js 15.2.4** con React 18, 
 
 Siga estos pasos para correr el simulador localmente:
 
-\`\`\`bash
+```bash
 # 1. Clonar el repositorio
 git clone https://github.com/tu-usuario/simulador-lobesia-botrana.git
 cd simulador-lobesia-botrana
@@ -60,21 +60,21 @@ npm install
 
 # 3. Correr el servidor de desarrollo
 npm run dev
-\`\`\`
+```
 
-Una vez iniciado, el simulador estará disponible en \`http://localhost:3000\`.
+Una vez iniciado, el simulador estará disponible en `http://localhost:3000`.
 
 ---
 
 ## 📂 Estructura general
 
-\`\`\`
+```
 /components      → Componentes visuales del simulador
 /hooks           → Lógica de simulación (grados-día, Poisson, control por generación)
 /types           → Tipado de datos y configuraciones
 /pages           → Pantallas principales del simulador
 /public          → Recursos estáticos (imágenes, íconos)
-\`\`\`
+```
 
 ---
 
