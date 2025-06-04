@@ -13,7 +13,7 @@ export default function Header() {
             </div>
           </div>
           <div className="hidden md:block">
-            <p className="text-sm text-green-200 italic">Cooperativa La Riojana - Herramienta de Gestión Vitícola</p>
+            <p className="text-sm text-green-200 italic">Herramienta de Gestión Vitícola</p>
           </div>
         </div>
       </div>

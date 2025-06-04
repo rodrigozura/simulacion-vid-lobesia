@@ -7,7 +7,7 @@ export default function Footer() {
             © 2024 Simulador de Lobesia Botrana. Todos los derechos reservados.
           </div>
           <div className="text-sm">
-            Desarrollado por el Grupo de Investigación en Simulación y Modelado
+            Desarrollado por el Grupo 4K3 - Simulacion - UTN-FRT
           </div>
         </div>
       </div>

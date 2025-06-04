@@ -21,8 +21,6 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertTriangle, CheckCircle, Info } from "lucide-react"
-import VineLifecycleVisualization from "./vine-lifecycle-visualization"
-import CostBenefitAnalysis from "./cost-benefit-analysis"
 
 interface SimulationResultsProps {
   results: SimulationResult
