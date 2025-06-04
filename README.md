@@ -122,3 +122,16 @@ Una vez iniciado, el simulador estará disponible en `http://localhost:3000`.
 Trabajo Final Integrador | UTN FRT - Comisión 4K3  
 **Estudiantes:** Alderete, Frosoni, Medina, Orellana, Zurita  
 **Docentes:** María Eugenia Teri y Mario Paredi
+
+---
+
+## 📄 Licencia
+
+Este proyecto está protegido bajo derechos de autor y se distribuye bajo los siguientes términos:
+
+- **Uso Académico**: Se permite el uso, modificación y distribución del código para fines académicos y educativos.
+- **Uso Comercial**: Está estrictamente prohibido el uso comercial de este software sin autorización expresa de los autores.
+- **Atribución**: Cualquier uso del código debe incluir la atribución correspondiente a los autores originales.
+- **Modificaciones**: Las modificaciones del código deben mantener esta misma licencia.
+
+Para solicitar permisos de uso comercial o consultas adicionales, contactar a los autores del proyecto.
