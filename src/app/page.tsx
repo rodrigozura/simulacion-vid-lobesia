@@ -31,17 +31,6 @@ export default function Home() {
 
   const [results, setResults] = useState<SimulationResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [config, setConfig] = useState<SimulationConfig>({
-    grapeVariety: "malbec",
-    hectares: 1000,
-    initialInfestation: 0.2,
-    controlMethods: {
-      pheromone_Traps: true,
-      mating_Disruption: false,
-      insecticides: false,
-      sterile_Insect_Technique: false,
-    },
-  });
 
   function calculateDegreeDaysAcumulationPerMonth(
     monthKey: keyof typeof MONTHS
@@ -109,8 +98,6 @@ export default function Home() {
   }
 
   const handleSimulate = async (config: SimulationConfig) => {
-    console.log("handleSimnulate")
-    setConfig(config);
     //Definimos algunas variables
     let qtyGenerationPests = 0;
     let initialInfestation = false;

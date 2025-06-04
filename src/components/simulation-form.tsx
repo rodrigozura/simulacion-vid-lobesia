@@ -21,7 +21,7 @@ export default function SimulationForm({ onSimulate, isLoading }: SimulationForm
   const [config, setConfig] = useState<SimulationConfig>({
     grapeVariety: "malbec",
     hectares: 1000,
-    initialInfestation: 1,
+    initialInfestation: 0.2,
     controlMethods: {
       pheromone_Traps: true,
       mating_Disruption: false,
